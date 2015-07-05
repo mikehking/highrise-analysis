@@ -21,7 +21,9 @@ def Create_Notes_Backup(highrise_key, highrise_user, notesfile, userfile, people
   people = high.get_people()
   print('Pulled ', len(people), ' people')
   cases = high.get_cases()
-  #print('Pulled ', len(cases), ' cases')
+  deals = high.get_deals()
+  companies = high.get_companies()
+  
   notes = []
   tmp_notes = []
   print('Started creating notes array')
@@ -36,7 +38,7 @@ def Create_Notes_Backup(highrise_key, highrise_user, notesfile, userfile, people
       #  notes.extend(high.get_person_notes(person.highrise_id))
       notes.extend(tmp_notes) # Removed redundant data call by reusing tmp_notes
   
-  # Collect Notes data by case
+  # Collect Notes by case
   if cases: # Watch out for Highrise environments with no cases
     for case in cases:
       tmp_notes = high.get_case_notes(case.highrise_id)
@@ -46,7 +48,27 @@ def Create_Notes_Backup(highrise_key, highrise_user, notesfile, userfile, people
         #if tmp_notes[0].created_at > datetime.utcnow() + timedelta(days = -trailing_days):
         #  notes.extend(high.get_person_notes(person.highrise_id))
         notes.extend(tmp_notes) # Removed redundant data call by reusing tmp_notes
-      
+
+  # Collect Notes by deal
+  if deals: # Watch out for Highrise environments with no cases
+    for deal in deals:
+      tmp_notes = high.get_deal_notes(deal.highrise_id)
+      time.sleep(.3) # Pause per API limits https://github.com/basecamp/highrise-api
+      if (type(tmp_notes) is list):
+        print('Pulled ', len(tmp_notes), ' notes from ', deal.name)
+        notes.extend(tmp_notes) 
+  
+  # Collect Notes by company
+  if companies: # Watch out for Highrise environments with no cases
+    for company in companies:
+      tmp_notes = high.get_company_notes(company.highrise_id)
+      time.sleep(.3) # Pause per API limits https://github.com/basecamp/highrise-api
+      if (type(tmp_notes) is list):
+        print('Pulled ', len(tmp_notes), ' notes from ', company.name)
+        #if tmp_notes[0].created_at > datetime.utcnow() + timedelta(days = -trailing_days):
+        #  notes.extend(high.get_person_notes(person.highrise_id))
+        notes.extend(tmp_notes) # Removed redundant data call by reusing tmp_notes        
+        
   # Note:  Notes associated with deals and companies are not counted
   print('Finished creating notes array')
   
