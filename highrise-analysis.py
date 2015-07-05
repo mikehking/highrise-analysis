@@ -8,6 +8,7 @@ from highton import Highton
 from datetime import date, datetime, timedelta
 import time
 import pickle
+import sendgrid
 from config import *
 
 # ===================================================================
@@ -62,7 +63,7 @@ def Create_Notes_Backup(highrise_key, highrise_user, notesfile, userfile, people
   if companies: # Watch out for Highrise environments with no cases
     for company in companies:
       tmp_notes = high.get_company_notes(company.highrise_id)
-      time.sleep(.3) # Pause per API limits https://github.com/basecamp/highrise-api
+      time.sleep(.4) # Pause per API limits https://github.com/basecamp/highrise-api
       if (type(tmp_notes) is list):
         print('Pulled ', len(tmp_notes), ' notes from ', company.name)
         #if tmp_notes[0].created_at > datetime.utcnow() + timedelta(days = -trailing_days):
@@ -145,19 +146,30 @@ def Analyze_Notes_Backup(notesfile, userfile, peoplefile, trailing_days = 365):
   f.write(str(len(people)))
   f.write('\n ============================ \n')
 
+  # Prepare email to send through SendGrid
+  sg = sendgrid.SendGridClient(SENDGRID_API_USR, SENDGRID_API_KEY)
+  message = sendgrid.Mail()
+  message.add_to(SENDGRID_EMAIL_TO)
+  message.set_from("highrise.analyzer@mikehking.com")
+  message.set_subject("Highrise Activity Report")
+  
+  highrise_report = ""
   for user in users:
-    print(user.name, ' has performed ', user_activity_count[user.highrise_id], ' activities')
-    f.write(str.join(' ', (user.name, ', ', str(user_activity_count[user.highrise_id]))))
+    highrise_report += str.join(' ', (user.name, ', ', str(user_activity_count[user.highrise_id])))
     if last_user_update[user.highrise_id] == date(1901, 1, 1):
-      print(user.name, ' has not updated Highrise in the last 365 days')
-      f.write(str.join(' ', (', NO_UPDATES\n')))
+      highrise_report += str.join(' ', (', NO_UPDATES\n'))
     else:
-      print(user.name, ' last updated Highrise ', last_user_update[user.highrise_id])
-      f.write(str.join(' ', (', ', str(last_user_update[user.highrise_id]), '\n')))
-  all_done = time.time()
-
+      highrise_report += str.join(' ', (', ', str(last_user_update[user.highrise_id]), '\n'))
+  
+  print(highrise_report)
+  f.write(highrise_report)
+  
+  # Send SendGrid email
+  message.set_html(highrise_report)
+  sg.send(message)
+  
   f.close
-     
+    
 # ===================================================================
 if __name__ == "__main__":
   # Test Environment Analysis
