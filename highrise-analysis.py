@@ -10,12 +10,6 @@ import time
 import pickle
 from config import *
 
-TEST_API_KEY = 'ca225dabe0d5db1321909e422146001220f3af19'
-TEST_API_USR = 'mikehking'
-
-PROD_API_KEY = '522c70d8e1cb18b664db1112f573acc6'
-PROD_API_USR = 'halfaker'
-
 # ===================================================================
 def Create_Notes_Backup(highrise_key, highrise_user, notesfile, userfile, peoplefile, casesfile, trailing_days = 365):
   # Function to create new Notes backup file of Highrise instance (this can take a while)
