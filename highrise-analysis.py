@@ -8,7 +8,14 @@ from highton import Highton
 from datetime import date, datetime, timedelta
 import time
 import pickle
-import config
+from config import *
+
+TEST_API_KEY = 'ca225dabe0d5db1321909e422146001220f3af19'
+TEST_API_USR = 'mikehking'
+
+PROD_API_KEY = '522c70d8e1cb18b664db1112f573acc6'
+PROD_API_USR = 'halfaker'
+
 # ===================================================================
 def Create_Notes_Backup(highrise_key, highrise_user, notesfile, userfile, peoplefile, casesfile, trailing_days = 365):
   # Function to create new Notes backup file of Highrise instance (this can take a while)
@@ -138,9 +145,9 @@ def Analyze_Notes_Backup(notesfile, userfile, peoplefile, trailing_days = 365):
 # ===================================================================
 if __name__ == "__main__":
   # Test Environment Analysis
-  #Create_Notes_Backup('ca225dabe0d5db1321909e422146001220f3af19', 'mikehking', 'highrise-test-notes.bak', 'highrise-test-users.bak', 'highrise-test-people.bak', 'highrise-test-cases.bak', trailing_days = 365000) 
-  #Analyze_Notes_Backup('highrise-test-notes.bak', 'highrise-test-users.bak', 'highrise-test-people.bak', trailing_days = 365000)
+  Create_Notes_Backup(TEST_API_KEY, TEST_API_USR, 'highrise-test-notes.bak', 'highrise-test-users.bak', 'highrise-test-people.bak', 'highrise-test-cases.bak', trailing_days = 365000) 
+  Analyze_Notes_Backup('highrise-test-notes.bak', 'highrise-test-users.bak', 'highrise-test-people.bak', trailing_days = 365000)
   
   # Production Environment Analysis
-  Create_Notes_Backup('522c70d8e1cb18b664db1112f573acc6', 'halfaker', 'highrise-production-notes.bak', 'highrise-production-users.bak', 'highrise-production-people.bak', 'highrise-production-cases.bak', trailing_days = 365) # Production Environment
-  Analyze_Notes_Backup('highrise-production-notes.bak', 'highrise-production-users.bak', 'highrise-production-people.bak', trailing_days = 365)
+  #Create_Notes_Backup(PROD_API_KEY, PROD_API_USR, 'highrise-production-notes.bak', 'highrise-production-users.bak', 'highrise-production-people.bak', 'highrise-production-cases.bak', trailing_days = 365) # Production Environment
+  #Analyze_Notes_Backup('highrise-production-notes.bak', 'highrise-production-users.bak', 'highrise-production-people.bak', trailing_days = 365)
