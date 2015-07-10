@@ -29,21 +29,11 @@ def Create_Notes_Backup(highrise_key, highrise_user, notesfile, userfile, people
   tmp_notes = []
   print('Started creating notes array')
   
-  # Collect Notes data by person
-  for person in people:
-    tmp_notes = high.get_person_notes(person.highrise_id)
-    time.sleep(.4) # Pause per API limits https://github.com/basecamp/highrise-api
-    if (type(tmp_notes) is list):
-      print('Pulled ', len(tmp_notes), ' notes for ', person.first_name, ' ', person.last_name)
-      #if tmp_notes[0].created_at > datetime.utcnow() + timedelta(days = -trailing_days):
-      #  notes.extend(high.get_person_notes(person.highrise_id))
-      notes.extend(tmp_notes) # Removed redundant data call by reusing tmp_notes
-  
   # Collect Notes by case
   if cases: # Watch out for Highrise environments with no cases
     for case in cases:
       tmp_notes = high.get_case_notes(case.highrise_id)
-      time.sleep(.3) # Pause per API limits https://github.com/basecamp/highrise-api
+      time.sleep(.5) # Pause per API limits https://github.com/basecamp/highrise-api
       if (type(tmp_notes) is list):
         print('Pulled ', len(tmp_notes), ' notes from ', case.name)
         #if tmp_notes[0].created_at > datetime.utcnow() + timedelta(days = -trailing_days):
@@ -54,7 +44,7 @@ def Create_Notes_Backup(highrise_key, highrise_user, notesfile, userfile, people
   if deals: # Watch out for Highrise environments with no cases
     for deal in deals:
       tmp_notes = high.get_deal_notes(deal.highrise_id)
-      time.sleep(.3) # Pause per API limits https://github.com/basecamp/highrise-api
+      time.sleep(.7) # Pause per API limits https://github.com/basecamp/highrise-api
       if (type(tmp_notes) is list):
         print('Pulled ', len(tmp_notes), ' notes from ', deal.name)
         notes.extend(tmp_notes) 
@@ -63,13 +53,23 @@ def Create_Notes_Backup(highrise_key, highrise_user, notesfile, userfile, people
   if companies: # Watch out for Highrise environments with no cases
     for company in companies:
       tmp_notes = high.get_company_notes(company.highrise_id)
-      time.sleep(.4) # Pause per API limits https://github.com/basecamp/highrise-api
+      time.sleep(.6) # Pause per API limits https://github.com/basecamp/highrise-api
       if (type(tmp_notes) is list):
         print('Pulled ', len(tmp_notes), ' notes from ', company.name)
         #if tmp_notes[0].created_at > datetime.utcnow() + timedelta(days = -trailing_days):
         #  notes.extend(high.get_person_notes(person.highrise_id))
-        notes.extend(tmp_notes) # Removed redundant data call by reusing tmp_notes        
-        
+        notes.extend(tmp_notes) # Removed redundant data call by reusing tmp_notes   
+  
+  # Collect Notes data by person
+  for person in people:
+    tmp_notes = high.get_person_notes(person.highrise_id)
+    time.sleep(.5) # Pause per API limits https://github.com/basecamp/highrise-api
+    if (type(tmp_notes) is list):
+      print('Pulled ', len(tmp_notes), ' notes for ', person.first_name, ' ', person.last_name)
+      #if tmp_notes[0].created_at > datetime.utcnow() + timedelta(days = -trailing_days):
+      #  notes.extend(high.get_person_notes(person.highrise_id))
+      notes.extend(tmp_notes) # Removed redundant data call by reusing tmp_notes
+   
   # Note:  Notes associated with deals and companies are not counted
   print('Finished creating notes array')
   
@@ -147,7 +147,9 @@ def Analyze_Notes_Backup(notesfile, userfile, peoplefile, trailing_days = 365):
   f.write('\n ============================ \n')
 
   # Prepare email to send through SendGrid
-  sg = sendgrid.SendGridClient(SENDGRID_API_USR, SENDGRID_API_KEY)
+  # SendGrid instructions at https://github.com/sendgrid/sendgrid-python
+  sg = sendgrid.SendGridClient(SENDGRID_API_KEY)
+  #sg = sendgrid.SendGridClient(SENDGRID_API_USR, SENDGRID_API_PASSWD)
   message = sendgrid.Mail()
   message.add_to(SENDGRID_EMAIL_TO)
   message.set_from("highrise.analyzer@mikehking.com")
@@ -155,17 +157,17 @@ def Analyze_Notes_Backup(notesfile, userfile, peoplefile, trailing_days = 365):
   
   highrise_report = ""
   for user in users:
-    highrise_report += str.join(' ', (user.name, ', ', str(user_activity_count[user.highrise_id])))
+    highrise_report += str.join('', (user.name, ',', str(user_activity_count[user.highrise_id])))
     if last_user_update[user.highrise_id] == date(1901, 1, 1):
-      highrise_report += str.join(' ', (', NO_UPDATES\n'))
+      highrise_report += str.join('', (',NEVER\n'))
     else:
-      highrise_report += str.join(' ', (', ', str(last_user_update[user.highrise_id]), '\n'))
+      highrise_report += str.join('', (',', str(last_user_update[user.highrise_id]), '\n'))
   
   print(highrise_report)
   f.write(highrise_report)
   
   # Send SendGrid email
-  message.set_html(highrise_report)
+  message.set_text(highrise_report) # Send text-version of email, as HTML-version drops linebreaks
   sg.send(message)
   
   f.close
@@ -173,9 +175,9 @@ def Analyze_Notes_Backup(notesfile, userfile, peoplefile, trailing_days = 365):
 # ===================================================================
 if __name__ == "__main__":
   # Test Environment Analysis
-  Create_Notes_Backup(TEST_API_KEY, TEST_API_USR, 'highrise-test-notes.bak', 'highrise-test-users.bak', 'highrise-test-people.bak', 'highrise-test-cases.bak', trailing_days = 365000) 
-  Analyze_Notes_Backup('highrise-test-notes.bak', 'highrise-test-users.bak', 'highrise-test-people.bak', trailing_days = 365000)
+  #Create_Notes_Backup(TEST_API_KEY, TEST_API_USR, 'highrise-test-notes.bak', 'highrise-test-users.bak', 'highrise-test-people.bak', 'highrise-test-cases.bak', trailing_days = 3650) 
+  #Analyze_Notes_Backup('highrise-test-notes.bak', 'highrise-test-users.bak', 'highrise-test-people.bak', trailing_days = 3650)
   
   # Production Environment Analysis
-  #Create_Notes_Backup(PROD_API_KEY, PROD_API_USR, 'highrise-production-notes.bak', 'highrise-production-users.bak', 'highrise-production-people.bak', 'highrise-production-cases.bak', trailing_days = 365) # Production Environment
-  #Analyze_Notes_Backup('highrise-production-notes.bak', 'highrise-production-users.bak', 'highrise-production-people.bak', trailing_days = 365)
+  Create_Notes_Backup(PROD_API_KEY, PROD_API_USR, 'highrise-production-notes.bak', 'highrise-production-users.bak', 'highrise-production-people.bak', 'highrise-production-cases.bak', trailing_days = 365) # Production Environment
+  Analyze_Notes_Backup('highrise-production-notes.bak', 'highrise-production-users.bak', 'highrise-production-people.bak', trailing_days = 365)
