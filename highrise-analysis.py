@@ -4,6 +4,12 @@
 # Purpose:  Count activity by Highrise CRM user in the last 365 days
 # Created by @mikehking in early July 2015
 
+# Nice github quick ref: https://training.github.com/kit/downloads/github-git-cheat-sheet.pdf
+# To make Github additions:
+    # git add [filename]
+    # git commit -m "NOTES"
+    # git push origin master
+
 from highton import Highton
 from datetime import date, datetime, timedelta
 import time
