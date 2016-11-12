@@ -10,6 +10,30 @@
     # git commit -m "NOTES"
     # git push origin master
 
+# Environment setup for this script:
+    # Setup config.py in same directory as this script with contents similar to:
+        #WTF_CSRF_ENABLED = True
+        #SECRET_KEY = 'A unique phrase goes here'
+
+        #TEST_API_KEY = 'x'
+        #TEST_API_USR = 'x'
+
+        #PROD_API_KEY = 'x'
+        #PROD_API_USR = 'x'
+
+        #SENDGRID_API_KEY = 'x'
+        #SENDGRID_API_USR = 'x'
+        #SENDGRID_API_PASSWD = 'x'
+        #SENDGRID_EMAIL_TO = 'x'
+    # Install python3 if necessary (e.g. brew install python3)
+    # Install pip (e.g. sudo easy_install pip)
+    # Install virtualenv (e.g. sudo pip install virtualenv)
+    # virtualenv -p /usr/bin/python3 py3env
+    # source py3env/bin/activate
+    # pip install highton
+    # pip install sendgrid
+    # python highrise-analysis.py
+    
 from highton import Highton
 from datetime import date, datetime, timedelta
 import time
