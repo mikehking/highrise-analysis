@@ -1,5 +1,5 @@
 # Using https://github.com/seibert-media/Highton to integrate with Highrise CRM
-# Written for Python 3.3 -- change to v3.3 with this cmd:  source py3env/bin/activate
+# Written for Python 3.3
 
 # Purpose:  Count activity by Highrise CRM user in the last 365 days
 # Created by @mikehking in early July 2015
@@ -32,6 +32,12 @@
     # source py3env/bin/activate
     # pip install highton
     # pip install sendgrid
+    # pip install sendgrid==2.2.1   (This fixes a sendgrid API error, see https://github.com/ansible/lightbulb/issues/70)
+    # python highrise-analysis.py
+    
+# Re-activating an existing environment:
+    # source py3env/bin/activate
+    # pip install sendgrid==2.2.1   (This fixes a sendgrid API error, see https://github.com/ansible/lightbulb/issues/70)
     # python highrise-analysis.py
     
 from highton import Highton
@@ -211,3 +217,4 @@ if __name__ == "__main__":
   # Production Environment Analysis
   Create_Notes_Backup(PROD_API_KEY, PROD_API_USR, 'highrise-production-notes.bak', 'highrise-production-users.bak', 'highrise-production-people.bak', 'highrise-production-cases.bak', trailing_days = 365) # Production Environment
   Analyze_Notes_Backup('highrise-production-notes.bak', 'highrise-production-users.bak', 'highrise-production-people.bak', trailing_days = 365)
+  Analyze_Notes_Backup('highrise-production-notes.bak', 'highrise-production-users.bak', 'highrise-production-people.bak', trailing_days = 30)
